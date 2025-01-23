@@ -5,7 +5,7 @@ import joblib  # Assuming you have a trained Random Forest model saved
 
 # Load the trained model
 # Replace 'grid_search_model.pkl' with the path to your trained model file
-model = joblib.load("grid_search_model.pkl")
+model = joblib.load("grid_search_mode.pkl")
 
 # App title
 st.title("Breast Cancer Diagnosis Predictor")
