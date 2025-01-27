@@ -34,4 +34,3 @@ Jupyter Notebook
 
 Required libraries: pandas, numpy, scikit-learn, matplotlib, seaborn
 
-Install the required libraries using:
