@@ -3,4 +3,4 @@ scikit-learn
 pandas
 numpy
 streamlit
-pip install -r req.txt
+
