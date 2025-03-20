@@ -1,66 +1,107 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-import joblib  # Assuming you have a trained Random Forest model saved
+import joblib
+import pandas as pd
 
-# Load the trained model
-# Replace 'grid_search_model.pkl' with the path to your trained model file
-model = joblib.load("grid_search_mode.pkl")
 
-# App title
-st.title("Breast Cancer Diagnosis Predictor")
-st.markdown("Enter the required features below to predict whether the diagnosis is **Malignant** or **Benign**.")
+try:
+    model = joblib.load('best_model.pkl')  
+    scaler = joblib.load('scaler.pkl')  
+except Exception as e:
+    st.error(f"⚠️ Error loading model or scaler: {e}")
+    st.stop()
 
-# User input
-st.sidebar.header("Input Features")
 
-# Create input fields for the user
-area_worst = st.sidebar.number_input("Enter area_worst:", value=0.0)
-perimeter_worst = st.sidebar.number_input("Enter perimeter_worst:", value=0.0)
-concave_points_mean = st.sidebar.number_input("Enter concave_points_mean:", value=0.0)
-concavity_mean = st.sidebar.number_input("Enter concavity_mean:", value=0.0)
-perimeter_mean = st.sidebar.number_input("Enter perimeter_mean:", value=0.0)
-area_se = st.sidebar.number_input("Enter area_se:", value=0.0)
-area_mean = st.sidebar.number_input("Enter area_mean:", value=0.0)
-radius_worst = st.sidebar.number_input("Enter radius_worst:", value=0.0)
-concave_points_worst = st.sidebar.number_input("Enter concave_points_worst:", value=0.0)
-smoothness_worst = st.sidebar.number_input("Enter smoothness_worst:", value=0.0)
+FEATURES = ['area_worst', 'perimeter_worst', 'concave points_mean', 
+            'concavity_mean', 'perimeter_mean', 'area_mean', 
+            'area_se', 'radius_worst', 'concave points_worst', 'smoothness_worst']
 
-# Button for prediction
-if st.sidebar.button("Predict"):
-    # Convert inputs into a 2D array
-    input_entries = np.array([[
-        area_worst, perimeter_worst, concave_points_mean, concavity_mean,
-        perimeter_mean, area_mean, area_se, radius_worst,
-        concave_points_worst, smoothness_worst
-    ]])
 
-    # Create a DataFrame for display
-    input_df = pd.DataFrame({
-        'Area Worst': [area_worst],
-        'Perimeter Worst': [perimeter_worst],
-        'Concave Points Mean': [concave_points_mean],
-        'Concavity Mean': [concavity_mean],
-        'Perimeter Mean': [perimeter_mean],
-        'Area Mean': [area_mean],
-        'Area SE': [area_se],
-        'Radius Worst': [radius_worst],
-        'Concave Points Worst': [concave_points_worst],
-        'Smoothness Worst': [smoothness_worst]
-    })
+st.markdown("""
+    <style>
+        /* Background Styling */
+        body {
+            background: linear-gradient(to bottom, Pink, #ffffff);
+        }
 
-    # Display the input values
-    st.subheader("Input Values")
-    st.write(input_df)
+        /* Center the header */
+        .main-title {
+            font-size: 42px;
+            font-weight: bold;
+            color: #ff4b4b;
+            text-align: center;
+        }
+        .sub-header {
+            font-size: 22px;
+            color: #444;
+            text-align: center;
+        }
 
-    # Make a prediction
-    output = model.predict(input_entries)
+        /* Input fields styling */
+        .stTextInput>div>div>input {
+            border: 2px solid #ff4b4b;
+            border-radius: 5px;
+            padding: 8px;
+        }
 
-    # Display the prediction result
-    st.subheader("Prediction")
-    if output[0] == 0:
-        st.error("The diagnosis is **Malignant**. Consult a doctor immediately.")
-    elif output[0] == 1:
-        st.success("The diagnosis is **Benign**. It is safe.")
-    else:
-        st.warning("Invalid inputs. Please check the values.")
+        /* Button Styling */
+        .stButton>button {
+            background-color: #ff4b4b;
+            color: white;
+            font-size: 18px;
+            border-radius: 10px;
+            padding: 12px;
+            transition: 0.3s ease;
+        }
+        .stButton>button:hover {
+            background-color: #d33f3f;
+        }
+
+        /* Prediction Box */
+        .prediction-box {
+            background-color: #fff3f3;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+
+st.markdown("<h1 class='main-title'>🎗️ Breast Cancer Prediction App 🎗️</h1>", unsafe_allow_html=True)
+st.markdown("<p class='sub-header'>Enter the required details to check the prediction</p>", unsafe_allow_html=True)
+
+
+col1, col2 = st.columns(2)
+user_input = {}
+
+for i, feature in enumerate(FEATURES):
+    with col1 if i % 2 == 0 else col2:
+        user_input[feature] = st.number_input(f"🔹 {feature.replace('_', ' ').title()}", value=0.0, format="%.5f")
+
+
+if st.button("🔮 Predict"):
+    try:
+      
+        input_df = pd.DataFrame([list(user_input.values())], columns=FEATURES)
+        scaled_data = scaler.transform(input_df)
+        prediction = model.predict(scaled_data)
+        result_text = '🩸 Malignant (Cancerous)' if prediction[0] == 'M' else '💖 Benign (Non-Cancerous)'
+        result_color = "#ff4b4b" if prediction[0] == 'M' else "#4CAF50"
+
+   
+        st.markdown(f"<div class='prediction-box' style='color: {result_color};'>{result_text}</div>", unsafe_allow_html=True)
+
+        with st.expander("📊 Model Insights"):
+            st.write("✅ This prediction is based on a trained Decision Tree model.")
+            
+    
+    except Exception as e:
+        st.error(f"⚠️ Error during prediction: {str(e)}")
+
+
+st.markdown("---")
+st.markdown("<p style='text-align: center; font-size: 16px;'>Made By MehakPreet Singh</p>", unsafe_allow_html=True)
