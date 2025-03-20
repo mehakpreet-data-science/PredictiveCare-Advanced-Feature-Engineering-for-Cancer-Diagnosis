@@ -113,7 +113,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Acknowledgements
 
-Scikit-learn: For providing the machine learning algorithms and tools.
-Joblib: For serializing and deserializing the trained model.
-Pandas & Numpy: For data manipulation and handling.
-Matplotlib & Seaborn: For visualization (if used in your project).
+## Live Demo
+Check out the website here: [Predictive Care](https://predictivecare-advanced-feature-3gca.onrender.com/#c7f2025c)
